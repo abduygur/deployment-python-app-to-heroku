@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+  <head>
+
+	<title>Agricultural Land Area Dahsboard</title>
+
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+	<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  </head>
+  <body>
+        <!-- Image and text -->
+  <nav class="navbar navbar-light bg-light">
+
+	<a class="navbar-brand p-3" href="#">
+		Flask Deployment Project
+	</a>
+
+	<div class = "float-right">
+	  <a href = "https://www.linkedin.com/in/abduygur/" class = "navbar-right">
+		  <img src="/static/linkedin-logo.png" width="40" height="40" class="m-1" alt="">
+	  </a>
+
+		<a href = "https://github.com/abduygur" class = "navbar-right mx-2">
+				<img src="/static/github.png" width="40" height="40" class="m-1" alt="">
+		</a>
+
+	</div>
+  </nav>
+
+
+        <!--middle section-->
+<div class="row">
+
+	<!--visualizations column-->
+	<div class="col-12">
+
+		<!--chart descriptions-->
+		<div id="middle-info" class="text-center mt-3">
+
+			<h2 id="tag-line">Agricultural Land Dashboard</h2>
+			<h4 id="tag-line" class="text-muted font-italic">5 Countries Agricultural Land (% of land Area)</h4>
+
+		</div>
+
+		<hr>
+
+		<!-- dropdown menu for filter -->
+		<div class="dropdown">
+
+	  		<button class="btn btn-danger btn-lg dropdown-toggle" type="button"
+	  		id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
+	  		aria-expanded="false">Filter by country</button>
+
+	  		<div class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="check-boxes">
+				<div class="form-check ml-3">
+					<!-- Check the select-all box if all countries were submitted from the form -->
+					{% if countries_selected|length == 10 %}
+						<input class="form-check-input" type="checkbox" name="Select All" value="selectall" id="select-all-check" checked>
+					{% else %}
+						<input class="form-check-input" type="checkbox" name="Select All" value="selectall" id="select-all-check">
+					{% endif %}
+				  	<label class="form-check-label" for="select-all-check">Select All</label>
+				</div>
+				<form class="px-4 py-3" role="form" method="post" action="/" id="form-filter">
+					{% for country in all_countries %}
+						<div class="form-check">
+							<!-- Check the country filter boxes for all countries submitted from the form -->
+							{% if country[1] in countries_selected %}
+						  		<input class="form-check-input country-check" type="checkbox" name="{{ country[0] }}" value="{{ country[1] }}" id="defaultCheck1-{{country[1]}}" checked>
+							{% else %}
+						  		<input class="form-check-input country-check" type="checkbox" name="{{ country[0] }}" value="{{ country[1] }}" id="defaultCheck1-{{country[1]}}">
+							{% endif %}
+					  		<label class="form-check-label" for="defaultCheck1-{{country[1]}}">{{country[0]}}</label>
+						</div>
+					{% endfor %}
+		  			<button id="country_selector" type="submit" class="btn btn-primary my-1">Submit</button>
+				</form>
+			</div>
+		</div>
+
+		<div id="charts" class="container mt-3 text-center">
+
+			<!--two charts-->
+			<div class="row">
+				<div class="col-6">
+					<div id="{{ids[0]}}"></div>
+				</div>
+				<div class="col-6">
+					<div id="{{ids[1]}}"></div>
+				</div>
+			</div>
+
+
+<div id="footer" class="container"></div>
+
+  </body>
+
+
+<footer>
+    <script type="text/javascript">
+    	// plots the figure by id using Plotly
+    	// id much match the div id above in the html
+    	var figures = {{figuresJSON | safe}};
+		var ids = {{ids | safe}};
+		for(var i in figures) {
+			Plotly.plot(ids[i],
+				figures[i].data,
+				figures[i].layout || {});
+		};
+
+		// checks or unchecks the filter boxes based on the select all box
+        $("#select-all-check").change(function () {
+        	$("#check-boxes input:checkbox").prop('checked', $(this).prop('checked'));
+        });
+
+		// uncheck select-all box when unchecking another box
+		$("#form-filter").change(function () {
+			if (!$(this).prop('checked')) {
+				$("#select-all-check").prop('checked', false);
+			}
+		});
+
+		// check select-all box when re-checking all of the other boxes
+		$("#form-filter").change(function () {
+			if ($(".country-check:checked").length == $('.form-check').length - 1) {
+				$("#select-all-check").prop('checked', true);
+			}
+		});
+
+    </script>
+
+</footer>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+
+
+  </body>
+</html>
